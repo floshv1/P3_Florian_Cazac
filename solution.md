@@ -4,7 +4,7 @@ This document explains how the linear programming (LP) problem is solved step by
 ## 1. Objective Function
 The objective function is defined as follows:
 
-\[Z = 1x_1 + 4x_2 + 2x_3\]\nThe coefficients of the objective function are [1, 4, 2].
+\[Z = 1x_1 + 4x_2 + 2x_3\]\[The coefficients of the objective function are [1, 4, 2].
 
 ## 2. Constraints
 The constraints are defined as follows:
@@ -25,15 +25,15 @@ We formulate the primal problem and solve it using the Pulp library.
 The primal problem is:
 
 Maximize or Minimize Z = 1x_1 + 4x_2 + 2x_3
-Subject to: [5, 2, 2] ≤ 145
-Subject to: [4, 8, -8] ≤ 260
-Subject to: [1, 1, 4] ≤ 190
-Primal Solution: {'x1': 0.0, 'x2': 52.5, 'x3': 20.0}
-Primal Objective Value: 250.0
+\[Subject to:[5, 2, 2] ≤ 145
+[4, 8, -8] ≤ 260
+[1, 1, 4] ≤ 190
+\[Primal Solution: {'x1': 0.0, 'x2': 52.5, 'x3': 20.0}
+\[Primal Objective Value: 250.0
 ## 5. Dual Problem Formulation and Solution
 We formulate the dual problem based on the primal problem.
-Dual Solution: {'y1': 1.5, 'y2': 0.125, 'y3': 0.0}
-Dual Objective Value: 250.0
+\[Dual Solution: {'y1': 1.5, 'y2': 0.125, 'y3': 0.0}
+\[Dual Objective Value: 250.0
 ## 6. Checking Optimality
 The candidate solution Q = [0, 52.5, 20] is optimal for the primal problem.
 

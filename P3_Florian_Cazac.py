@@ -44,7 +44,8 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     md_file.write("## 1. Objective Function\n")
     md_file.write(f"The objective function is defined as follows:\n\n")
     md_file.write(r"\[")
-    md_file.write("Z = " + " + ".join([f"{obj}x_{i+1}" for i, obj in enumerate(objective)]) + r"\]\n")
+    md_file.write("Z = " + " + ".join([f"{obj}x_{i+1}" for i, obj in enumerate(objective)]) + r"\]")
+    md_file.write(r"\[")
     md_file.write(f"The coefficients of the objective function are {objective}.\n\n")
 
     # 2. Constraints setup
@@ -67,10 +68,13 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     md_file.write("We formulate the primal problem and solve it using the Pulp library.\n")
     md_file.write(f"The primal problem is:\n\n")
     md_file.write(f"Maximize or Minimize Z = {' + '.join([f'{obj}x_{i+1}' for i, obj in enumerate(objective)])}\n")
+    md_file.write(r"\[")
+    md_file.write(f"Subject to:")
     for i in range(num_cons):
-        md_file.write(f"Subject to: {constraints_matrix[i]} ≤ {rhs_values[i]}\n")
+        md_file.write(f"{constraints_matrix[i]} ≤ {rhs_values[i]}\n")
     
     # Solve the primal
+    md_file.write(r"\[")
     prob = LpProblem("Primal", LpMaximize if maxormin == "max" else LpMinimize)
     x = [LpVariable(f"x{i + 1}", lowBound=0, cat="Continuous") for i in range(num_vars)]
     prob += lpSum(objective[i] * x[i] for i in range(num_vars)), "Objective"
@@ -82,6 +86,7 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     primal_solution = {v.name: v.varValue for v in prob.variables()}
     primal_objective = value(prob.objective)
     md_file.write(f"Primal Solution: {primal_solution}\n")
+    md_file.write(r"\[")
     md_file.write(f"Primal Objective Value: {primal_objective}\n")
 
     # 5. Dual problem formulation and solving
@@ -97,7 +102,9 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     dual.solve(apis.PULP_CBC_CMD(msg=0))
     dual_solution = {v.name: v.varValue for v in dual.variables()}
     dual_objective = value(dual.objective)
+    md_file.write(r"\[")
     md_file.write(f"Dual Solution: {dual_solution}\n")
+    md_file.write(r"\[")
     md_file.write(f"Dual Objective Value: {dual_objective}\n")
 
     # 6. Check optimality of the candidate solution
