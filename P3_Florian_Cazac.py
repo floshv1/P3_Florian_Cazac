@@ -49,31 +49,31 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
 
     # 2. Constraints setup
     md_file.write("## 2. Constraints\n")
-    md_file.write("The constraints are defined as follows:\n")
+    md_file.write("The constraints are defined as follows:\n\n")
     for i in range(num_cons):
         constraint_str = " + ".join([f"{constraints_matrix[i][j]}x_{j+1}" for j in range(num_vars)])
-        md_file.write(f"Constraint {i + 1}: {constraint_str} \u2264 {rhs_values[i]}\n")  # Use Unicode escape for ≤
-    md_file.write("\nThese constraints define the feasible region of the solution.\n")
+        md_file.write(f"Constraint {i + 1}: {constraint_str} \u2264 {rhs_values[i]}\n\n")  # Use Unicode escape for ≤
+    md_file.write("\nThese constraints define the feasible region of the solution.\n\n")
 
     # 3. Validate the candidate solution
     md_file.write("## 3. Candidate Solution Validation\n")
-    md_file.write("We check if the candidate solution satisfies the constraints.\n")
+    md_file.write("We check if the candidate solution satisfies the constraints.\n\n")
     constraints_values = [sum(constraints_matrix[i][j] * candidate_q[j] for j in range(num_vars)) for i in range(num_cons)]
     is_feasible = all(constraints_values[i] <= rhs_values[i] for i in range(num_cons))
     md_file.write(f"The candidate solution Q = {candidate_q} is {'feasible' if is_feasible else 'not feasible'} for the primal problem.\n\n")
 
     # 4. Primal problem formulation and solving
     md_file.write("## 4. Primal Problem Formulation and Solution\n")
-    md_file.write("We formulate the primal problem and solve it using the Pulp library.\n")
+    md_file.write("We formulate the primal problem and solve it using the Pulp library.\n\n")
     md_file.write(f"The primal problem is:\n\n")
     if maxormin == "max":
         md_file.write("Maximize Z = ")
     else:
         md_file.write("Minimize Z = ")
-    md_file.write(f"{' + '.join([f'{obj}x_{i+1}' for i, obj in enumerate(objective)])}\n")
-    md_file.write(f"Subject to:\n")
+    md_file.write(f"{' + '.join([f'{obj}x_{i+1}' for i, obj in enumerate(objective)])}\n\n")
+    md_file.write(f"Subject to:\n\n")
     for i in range(num_cons):
-        md_file.write(f"{constraints_matrix[i]} ≤ {rhs_values[i]}\n")
+        md_file.write(f"{constraints_matrix[i]} ≤ {rhs_values[i]}\n\n")
     
     # Solve the primal
     prob = LpProblem("Primal", LpMaximize if maxormin == "max" else LpMinimize)
@@ -91,7 +91,7 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
 
     # 5. Dual problem formulation and solving
     md_file.write("## 5. Dual Problem Formulation and Solution\n")
-    md_file.write("We formulate the dual problem based on the primal problem.\n")
+    md_file.write("We formulate the dual problem based on the primal problem.\n\n")
 
     # Formulate the dual problem
     if maxormin == "max":
@@ -99,10 +99,10 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     else:
         md_file.write("Maximize W = ")
 
-    md_file.write(f"{' + '.join([f'{rhs_values[i]}y_{i+1}' for i in range(num_cons)])}\n")
-    md_file.write(f"Subject to:\n")
+    md_file.write(f"{' + '.join([f'{rhs_values[i]}y_{i+1}' for i in range(num_cons)])}\n\n")
+    md_file.write(f"Subject to:\n\n")
     for i in range(num_vars):
-        md_file.write(f"{' + '.join([f'{constraints_matrix[j][i]}y_{j+1}' for j in range(num_cons)])} ≥ {objective[i]}\n")
+        md_file.write(f"{' + '.join([f'{constraints_matrix[j][i]}y_{j+1}' for j in range(num_cons)])} ≥ {objective[i]}\n\n")
 
     dual = LpProblem("Dual", LpMinimize if maxormin == "max" else LpMaximize)
     y = [LpVariable(f"y{i + 1}", lowBound=0, cat="Continuous") for i in range(num_cons)]
