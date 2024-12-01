@@ -64,5 +64,5 @@ Dual Objective Value: 250.0
 ## 6. Checking Optimality
 The candidate solution Q = [0, 52.5, 20] is optimal for the primal problem.
 
-### Conclusion
+## 7. Conclusion
 The problem has been solved, and the optimal solution has been found or validated.

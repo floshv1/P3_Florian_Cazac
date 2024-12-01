@@ -122,7 +122,7 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     is_optimal = primal_objective == dual_objective and all(candidate_q[i] == primal_solution[f"x{i + 1}"] for i in range(num_vars))
     md_file.write(f"The candidate solution Q = {candidate_q} is {'optimal' if is_optimal else 'not optimal'} for the primal problem.\n")
 
-    md_file.write("\n### Conclusion\n")
+    md_file.write("\n## 7. Conclusion\n")
     md_file.write("The problem has been solved, and the optimal solution has been found or validated.\n")
 
 print(f"Markdown explanation written to {output_file}.")
