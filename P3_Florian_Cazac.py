@@ -45,15 +45,14 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     md_file.write(f"The objective function is defined as follows:\n\n")
     md_file.write(r"\[")
     md_file.write("Z = " + " + ".join([f"{obj}x_{i+1}" for i, obj in enumerate(objective)]) + r"\]")
-    md_file.write(r"\[")
-    md_file.write(f"The coefficients of the objective function are {objective}.\n\n")
+    md_file.write(f"\n\nThe coefficients of the objective function are {objective}.\n\n")
 
     # 2. Constraints setup
     md_file.write("## 2. Constraints\n")
     md_file.write("The constraints are defined as follows:\n")
     for i in range(num_cons):
         constraint_str = " + ".join([f"{constraints_matrix[i][j]}x_{j+1}" for j in range(num_vars)])
-        md_file.write(f"\nConstraint {i + 1}: {constraint_str} \u2264 {rhs_values[i]}\n")  # Use Unicode escape for ≤
+        md_file.write(f"Constraint {i + 1}: {constraint_str} \u2264 {rhs_values[i]}\n")  # Use Unicode escape for ≤
     md_file.write("\nThese constraints define the feasible region of the solution.\n")
 
     # 3. Validate the candidate solution
@@ -67,14 +66,16 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     md_file.write("## 4. Primal Problem Formulation and Solution\n")
     md_file.write("We formulate the primal problem and solve it using the Pulp library.\n")
     md_file.write(f"The primal problem is:\n\n")
-    md_file.write(f"Maximize or Minimize Z = {' + '.join([f'{obj}x_{i+1}' for i, obj in enumerate(objective)])}\n")
-    md_file.write(r"\[")
-    md_file.write(f"Subject to:")
+    if maxormin == "max":
+        md_file.write("Maximize Z = ")
+    else:
+        md_file.write("Minimize Z = ")
+    md_file.write(f"{' + '.join([f'{obj}x_{i+1}' for i, obj in enumerate(objective)])}\n")
+    md_file.write(f"Subject to:\n")
     for i in range(num_cons):
         md_file.write(f"{constraints_matrix[i]} ≤ {rhs_values[i]}\n")
     
     # Solve the primal
-    md_file.write(r"\[")
     prob = LpProblem("Primal", LpMaximize if maxormin == "max" else LpMinimize)
     x = [LpVariable(f"x{i + 1}", lowBound=0, cat="Continuous") for i in range(num_vars)]
     prob += lpSum(objective[i] * x[i] for i in range(num_vars)), "Objective"
@@ -85,13 +86,24 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     prob.solve(apis.PULP_CBC_CMD(msg=0))
     primal_solution = {v.name: v.varValue for v in prob.variables()}
     primal_objective = value(prob.objective)
-    md_file.write(f"Primal Solution: {primal_solution}\n")
-    md_file.write(r"\[")
-    md_file.write(f"Primal Objective Value: {primal_objective}\n")
+    md_file.write(f"\nPrimal Solution: {primal_solution}\n")
+    md_file.write(f"\nPrimal Objective Value: {primal_objective}\n")
 
     # 5. Dual problem formulation and solving
     md_file.write("## 5. Dual Problem Formulation and Solution\n")
     md_file.write("We formulate the dual problem based on the primal problem.\n")
+
+    # Formulate the dual problem
+    if maxormin == "max":
+        md_file.write("Minimize W = ")
+    else:
+        md_file.write("Maximize W = ")
+
+    md_file.write(f"{' + '.join([f'{rhs_values[i]}y_{i+1}' for i in range(num_cons)])}\n")
+    md_file.write(f"Subject to:\n")
+    for i in range(num_vars):
+        md_file.write(f"{' + '.join([f'{constraints_matrix[j][i]}y_{j+1}' for j in range(num_cons)])} ≥ {objective[i]}\n")
+
     dual = LpProblem("Dual", LpMinimize if maxormin == "max" else LpMaximize)
     y = [LpVariable(f"y{i + 1}", lowBound=0, cat="Continuous") for i in range(num_cons)]
     dual += lpSum(rhs_values[i] * y[i] for i in range(num_cons)), "Objective"
@@ -102,10 +114,8 @@ with open(output_file, 'w', encoding='utf-8') as md_file:
     dual.solve(apis.PULP_CBC_CMD(msg=0))
     dual_solution = {v.name: v.varValue for v in dual.variables()}
     dual_objective = value(dual.objective)
-    md_file.write(r"\[")
-    md_file.write(f"Dual Solution: {dual_solution}\n")
-    md_file.write(r"\[")
-    md_file.write(f"Dual Objective Value: {dual_objective}\n")
+    md_file.write(f"\nDual Solution: {dual_solution}\n")
+    md_file.write(f"\nDual Objective Value: {dual_objective}\n")
 
     # 6. Check optimality of the candidate solution
     md_file.write("## 6. Checking Optimality\n")
